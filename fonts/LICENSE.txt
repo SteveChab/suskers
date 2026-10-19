@@ -1,0 +1,9 @@
+Roboto Mono
+Copyright the Roboto Mono Project Authors (https://github.com/googlefonts/RobotoMono)
+
+Licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+This is the variable-weight woff2 build of the latin subset, self-hosted so no
+visitor request reaches a third-party server. The file carries the full 100 to
+700 weight axis.

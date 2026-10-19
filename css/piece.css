@@ -1,0 +1,245 @@
+/* ==================================================================
+   The piece frame — head, stage, bar
+   ==================================================================
+   The components that stand in the bar come from css/site.css.
+   ================================================================== */
+
+/* --- the frame ---------------------------------------------------- */
+
+.piece {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding-bottom: 0;
+}
+
+/* .shell centers itself with auto inline margins, which on a grid item
+   shrinks to fit instead of stretching, so the head and the bar claim
+   the full track back. */
+
+.piece > .shell { width: 100%; }
+
+.piece__head {
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  padding-top: .35rem;
+  padding-bottom: .35rem;
+  background: var(--surface);
+  position: relative;
+  z-index: var(--z-header);
+}
+
+/* The name and the four icons share one line down to 320px. */
+.piece__head .social { gap: .25rem; }
+
+/* The stage owns its background, so a piece can go black under a light
+   page. */
+
+.piece__stage {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* --- the control bar ----------------------------------------------- */
+
+/* flex-end, not a second auto margin: a long readout can push the
+   squares onto a row of their own, where no .bar__id holds the free
+   space, and two auto margins would split that row and leave a hole in
+   the middle. */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem var(--shell-pad);
+  padding-top: .5rem;
+  padding-bottom: .55rem;
+  background: var(--surface);
+  position: relative;
+  z-index: var(--z-header);
+}
+
+.piece__head,
+.bar,
+.hint,
+.gate {
+  --surface: var(--paper-950);
+  --text: var(--paper-50);
+  --link: var(--accent-400);
+  --link-hover: var(--accent-300);
+  --focus-ring: var(--accent-400);
+  color: var(--text);
+}
+
+.bar__id {
+  display: grid;
+  gap: .2rem;
+  align-content: center;
+  margin-inline-end: auto;
+  align-self: center;
+}
+
+.bar__title {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: var(--leading-tight);
+  letter-spacing: -.01em;
+}
+
+.bar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 0.5rem;
+  gap: 1rem;
+}
+
+.bar__readout {
+  margin: 0;
+  align-self: center;
+  font-family: var(--font);
+  font-size: var(--meta-size);
+  font-weight: 400;
+  letter-spacing: var(--meta-tracking);
+  text-transform: lowercase;
+  line-height: 1.6;
+}
+
+.bar__readout b { font-weight: 400; }
+
+.bar__line { display: block; }
+
+/* --- chrome away ---------------------------------------------------
+   The frame drops to one row along with the head and the bar. Left at
+   three, the stage auto-places into the first, which is auto-sized,
+   and the art collapses to nothing instead of going full screen. */
+
+.piece.is-bare {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.is-bare .piece__head,
+.is-bare .bar {
+  display: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* The stage draws the overlay's focus ring, not the overlay. The
+   overlay fills the stage exactly and the stage clips, so the shared
+   +3px offset in site.css would paint outside the clip; and
+   this page gives the overlay mix-blend-mode and opacity, which
+   apply to the element whole, outline included, and blend the ring
+   into the art. */
+
+.overlay:focus-visible { outline: none; }
+
+.piece__stage:has(.overlay:focus-visible)::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  z-index: 3;
+  border: 3px solid var(--focus-ring);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+/* Wide enough, the readout, the address field, and the controls share
+   one row, and a long readout wraps inside its own column instead of
+   pushing the field and the squares onto rows of their own. */
+
+@media (min-width: 600px) {
+  .bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(10rem, 30vw, 20rem) auto;
+    gap: .9rem var(--shell-pad);
+    justify-content: normal;
+  }
+
+  .bar { align-items: start; }
+  .bar__id { margin-inline-end: 0; }
+  .field { width: 100%; }
+}
+
+/* The hint sits over the hit target, so it stays see-through to the
+   pointer; otherwise the corner that says how to restore the controls
+   is the one corner that cannot. */
+
+.hint {
+  pointer-events: none;
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 2;
+  margin: 0;
+  padding: .5rem .7rem;
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--meta-size);
+  font-weight: 400;
+  letter-spacing: var(--meta-tracking);
+}
+
+/* --- narrow screens ----------------------------------------------- */
+
+@media (max-width: 599px) {
+  .bar__title {
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bar {
+    gap: .3rem .9rem;
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+  }
+
+
+  /* The id and the controls share one row. The scene and effect line
+     stays in the DOM for screen readers and leaves the screen to make
+     room. */
+  .bar { flex-wrap: nowrap; align-items: center; min-height: 7rem; }
+  .bar__id > * { min-width: 0; }
+  .bar__id { flex: 1 1 0; min-width: 0; }
+  .bar__controls { flex: none; gap: .5rem; }
+
+  /* A long title stops at one line and a long description at four, and
+     the bar never drops below the height of that longest case (7rem), so
+     it keeps one height from picture to picture. The full text stays in the DOM, and the
+     live region still reads all of it. */
+  .bar__line:first-child {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
+  }
+
+  .bar__line:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* --- print --------------------------------------------------------- */
+
+@media print {
+  .piece { height: auto; display: block; }
+  .piece__stage, .bar__controls { display: none; }
+}
